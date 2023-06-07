@@ -79,17 +79,17 @@ Route::get('/reacciones/numero/{publicacionId}', [ReaccionController::class, 'ge
 
 Route::get('/camaras', [CamarasController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/camaras/{id}', [CamarasController::class, 'show'])->middleware('auth:sanctum');
-Route::post('/camaras', [CamarasController::class, 'store'])->middleware('admin');
-Route::put('/camaras/{id}', [CamarasController::class, 'update'])->middleware('admin');
-Route::delete('/camaras/{id}', [CamarasController::class, 'destroy'])->middleware('admin');
+Route::post('/camaras', [CamarasController::class, 'store'])->middleware('auth:sanctum')->middleware('admin');
+Route::put('/camaras/{id}', [CamarasController::class, 'update'])->middleware('auth:sanctum')->middleware('admin');
+Route::delete('/camaras/{id}', [CamarasController::class, 'destroy'])->middleware('auth:sanctum')->middleware('admin');
 
 
 Route::prefix('roles')->group(function () {
     Route::get('/', [RolController::class, 'index']);
-    Route::post('/', [RolController::class, 'store'])->middleware('admin');
+    Route::post('/', [RolController::class, 'store'])->middleware('auth:sanctum')->middleware('admin');
     Route::get('/{id}', [RolController::class, 'show']);
-    Route::put('/{id}', [RolController::class, 'update'])->middleware('admin');
-    Route::delete('/{id}', [RolController::class, 'destroy'])->middleware('admin');
+    Route::put('/{id}', [RolController::class, 'update'])->middleware('auth:sanctum')->middleware('admin');
+    Route::delete('/{id}', [RolController::class, 'destroy'])->middleware('auth:sanctum')->middleware('admin');
 });
 
 

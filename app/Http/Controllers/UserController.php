@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class UserController extends Controller
 {
@@ -130,8 +131,21 @@ class UserController extends Controller
         if (!$usuario) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
+        $fotoPerfil = $usuario->foto_perfil; // Obtener la ruta de la imagen de perfil
 
         $usuario->delete();
+        if ($fotoPerfil && file_exists(public_path("img/perfil/" . $fotoPerfil))) {
+            unlink(public_path("img/perfil/" . $fotoPerfil));
+            $carpetaUsuario = dirname(public_path("img/perfil/" . $fotoPerfil));
+            rmdir($carpetaUsuario);
+        }
+
+        $carpetaPubli = public_path("img/publicaciones/" . $id);
+
+    if (File::exists($carpetaPubli)) {
+        File::deleteDirectory($carpetaPubli);
+    }
+
 
         return response()->json(['message' => 'Usuario eliminado']);
     }

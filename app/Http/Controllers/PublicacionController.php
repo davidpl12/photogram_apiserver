@@ -37,7 +37,7 @@ class PublicacionController extends Controller
             // Resto del código aquí
         } else {
         }
-        $publicacion->autor = $autor;
+        $publicacion->autor = $request->input('autor');
         $publicacion->descripcion = $request->input('descripcion');
         $publicacion->lugar_realizacion = $request->input('lugar_realizacion');
         $publicacion->licencia = $request->input('licencia');
@@ -82,6 +82,8 @@ class PublicacionController extends Controller
     {
         $publicacion = Publicacion::findOrFail($id);
 
+
+
         return response()->json($publicacion);
     }
 
@@ -95,8 +97,34 @@ class PublicacionController extends Controller
     public function update(Request $request, $id)
     {
         $publicacion = Publicacion::findOrFail($id);
-        // Actualizar los campos necesarios del modelo Publicacion con los valores del request
+        $publicacion->autor = $request->input('autor');;
+        $publicacion->descripcion = $request->input('descripcion');
+        $publicacion->lugar_realizacion = $request->input('lugar_realizacion');
+        $publicacion->licencia = $request->input('licencia');
+        $publicacion->camara = $request->input('camara');
+        $fechaPublic = date('Y-m-d H:i:s', strtotime($request->input('fecha_public')));
 
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            $nombreUsuario = $request->autor;
+            $nombreImagen = Str::slug($nombreUsuario) . "-" . pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME) . "." . $imagen->guessExtension();
+
+            $carpetaUsuario = public_path("img/publicaciones/" . $nombreUsuario);
+
+            if (!file_exists($carpetaUsuario)) {
+                // Crear la carpeta del usuario si no existe
+                mkdir($carpetaUsuario, 0755, true);
+            }
+
+            $rutaImagen = $carpetaUsuario . "/" . $nombreImagen;
+
+            $imagen->move($carpetaUsuario, $nombreImagen);
+
+            $publicacion->imagen = $nombreUsuario . '/' . $nombreImagen;;
+        }
+        $publicacion->num_reacciones = $request->input('num_reacciones');
+        $publicacion->album = $request->input('album');
+        $publicacion->fecha_public = $fechaPublic;
         $publicacion->save();
 
         return response()->json($publicacion);
@@ -111,7 +139,16 @@ class PublicacionController extends Controller
     public function destroy($id)
     {
         $publicacion = Publicacion::findOrFail($id);
+        $imagen = $publicacion->imagen; // Obtener la ruta de la imagen
+
         $publicacion->delete();
+
+          // Eliminar la imagen si existe
+    if ($imagen && file_exists(public_path("img/publicaciones/" . $imagen))) {
+        unlink(public_path("img/publicaciones/" . $imagen));
+        $carpetaPublicacion = dirname(public_path("img/publicaciones/" . $imagen));
+        rmdir($carpetaPublicacion);
+    }
 
         return response()->json(null, 204);
     }
@@ -122,7 +159,7 @@ class PublicacionController extends Controller
 
         return response()->json($publicaciones);
     }
-/*
+    /*
     public function getPublicacionesPorAutoresSeguidos($autoresSeguidos)
     {
         $publicaciones = Publicacion::whereIn('autor', $autoresSeguidos)->get();
