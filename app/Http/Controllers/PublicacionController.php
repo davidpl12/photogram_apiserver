@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Seguidor;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Publicacion;
@@ -60,7 +62,7 @@ class PublicacionController extends Controller
 
             $imagen->move($carpetaUsuario, $nombreImagen);
 
-            $publicacion->imagen = $nombreUsuario . '/' . $nombreImagen;;
+            $publicacion->imagen = $nombreUsuario . '/' . $nombreImagen;
         }
         $publicacion->num_reacciones = $request->input('num_reacciones');
         $publicacion->album = $request->input('album');
@@ -97,7 +99,7 @@ class PublicacionController extends Controller
     public function update(Request $request, $id)
     {
         $publicacion = Publicacion::findOrFail($id);
-        $publicacion->autor = $request->input('autor');;
+        $publicacion->autor = $request->input('autor');
         $publicacion->descripcion = $request->input('descripcion');
         $publicacion->lugar_realizacion = $request->input('lugar_realizacion');
         $publicacion->licencia = $request->input('licencia');
@@ -145,9 +147,19 @@ class PublicacionController extends Controller
 
           // Eliminar la imagen si existe
     if ($imagen && file_exists(public_path("img/publicaciones/" . $imagen))) {
-        unlink(public_path("img/publicaciones/" . $imagen));
-        $carpetaPublicacion = dirname(public_path("img/publicaciones/" . $imagen));
-        rmdir($carpetaPublicacion);
+        $rutaImagen = public_path("img/publicaciones/" . $imagen);
+
+        // Eliminar la imagen
+        unlink($rutaImagen);
+
+        // Obtener la ruta de la carpeta de publicación
+        $carpetaPublicacion = dirname($rutaImagen);
+
+        // Verificar si la carpeta está vacía
+        if (count(scandir($carpetaPublicacion)) == 2) { // La función scandir() devuelve "." y ".." siempre
+            // La carpeta está vacía, se puede eliminar
+            rmdir($carpetaPublicacion);
+        }
     }
 
         return response()->json(null, 204);
@@ -182,4 +194,29 @@ class PublicacionController extends Controller
 
         return response()->json($publicaciones);
     }
+
+    public function obtenerPublicacionesPorUsuarioCamara($idUsuario)
+    {
+        $publicaciones = Publicacion::where('autor', $idUsuario)
+            ->with('camara') // Asegúrate de tener las relaciones definidas en el modelo
+            ->get();
+
+        return response()->json($publicaciones);
+    }
+
+
+    public function getPublicacionesSeguidos($idUsuario)
+    {
+            //$user = User::find($idUsuario); // Obtener el usuario actualmente autenticado o el usuario que envía la solicitud
+
+        $followedUsers = Seguidor::where('usuario_envia', $idUsuario)->pluck('usuario_recibe'); // Obtener los IDs de los usuarios seguidos
+
+        $posts = Publicacion::whereIn('autor', $followedUsers)->orderBy('created_at', 'desc')->get(); // Obtener las publicaciones de los usuarios seguidos
+
+        return response()->json($posts);
+    }
+
+
+
+
 }

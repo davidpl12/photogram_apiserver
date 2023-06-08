@@ -27,20 +27,23 @@ Route::put('/albumes/{id}', [AlbumController::class, 'update'])->middleware('aut
 Route::delete('/albumes/{id}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
 
 Route::get('/publicaciones', [PublicacionController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/publicaciones/usuario/{idUsuario}', [PublicacionController::class, 'obtenerPublicacionesPorUsuarioCamara'])->middleware('auth:sanctum');
 Route::post('/publicaciones', [PublicacionController::class, 'store'])->middleware('auth:sanctum');
 Route::get('/publicaciones/{id}', [PublicacionController::class, 'show'])->middleware('auth:sanctum');
-Route::put('/publicaciones/{id}', [PublicacionController::class, 'update'])->middleware('auth:sanctum');
+Route::post('/publicaciones/{id}', [PublicacionController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/publicaciones/{id}', [PublicacionController::class, 'destroy'])->middleware('auth:sanctum');
 Route::get('publicaciones/autor/{idAutor}', [PublicacionController::class, 'getPublicacionesPorAutor'])->middleware('auth:sanctum');
 Route::get('publicaciones/camara/{idCamara}', [PublicacionController::class, 'getPublicacionByCamara'])->middleware('auth:sanctum');
 Route::get('publicaciones/album/{idAlbum}', [PublicacionController::class, 'getPublicacionByAlbum'])->middleware('auth:sanctum');
+Route::get('publicaciones/seguidores/{id}', [PublicacionController::class, 'getPublicacionesSeguidos']);
+
 //Route::get('publicaciones/autorSeguido/{autoresSeguidos}', [PublicacionController::class, 'getPublicacionesPorAutoresSeguidos']);
 
 
 Route::get('/usuarios', [UserController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/usuarios/{id}', [UserController::class, 'show'])->middleware('auth:sanctum');
 Route::post('/usuarios', [UserController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/usuarios/{id}', [UserController::class, 'update'])->middleware('auth:sanctum');
+Route::post('/usuarios/actualizar/{id}', [UserController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->middleware('auth:sanctum');
 Route::get('/user-data', [UserController::class, 'getUserData'])->middleware('auth:sanctum');
 Route::post('usuarios/{userId}/assign-role', [RolController::class, 'assignRole']);
@@ -53,7 +56,7 @@ Route::post('/seguidores', [SeguidoresController::class, 'store'])->middleware('
 Route::get('/seguidores/{id}', [SeguidoresController::class, 'show'])->middleware('auth:sanctum');
 Route::put('/seguidores/{id}', [SeguidoresController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/seguidores/{id}', [SeguidoresController::class, 'destroy'])->middleware('auth:sanctum');
-Route::get('/todosseguidores/{idRecibe}', [SeguidoresController::class, 'getSeguidores'])->middleware('auth:sanctum');
+Route::get('/todosseguidores/{idRecibe}', [SeguidoresController::class, 'getSeguidores']);
 Route::get('/num-seguidores/{idRecibe}', [SeguidoresController::class, 'getNumSeguidores'])->middleware('auth:sanctum');
 Route::get('/todosseguidos/{idEnvia}', [SeguidoresController::class, 'getSeguidos'])->middleware('auth:sanctum');
 Route::get('/num-seguidos/{idEnvia}', [SeguidoresController::class, 'getNumSeguidos'])->middleware('auth:sanctum');

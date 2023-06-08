@@ -85,24 +85,32 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
 {
+    $request->validate([
+        'nombre' => 'required',
+        'apellidos' => 'required',
+        'sexo' => 'required',
+        'email' => 'required',
+        'user' => 'required',
+        'fecha_nac' => 'required',
+        'rol_id' => 'required',
+    ]);
+
     $usuario = User::findOrFail($id);
+// Procesar la imagen de perfil si se proporciona
+if ($request->hasFile('foto_perfil')) {
+    $fotoPerfil = $request->file('foto_perfil');
+    $nombreUsuario = $request->user;
+    $nombreimagen = Str::slug($nombreUsuario) . "." . $fotoPerfil->guessExtension();
 
-    // Validar si se ha proporcionado una foto de perfil
-    if ($request->hasFile('foto_perfil')) {
-        $fotoPerfil = $request->file('foto_perfil');
-
-        // Obtener el nombre original del archivo
-        $nombreOriginal = $fotoPerfil->getClientOriginalName();
-
-        // Generar un nombre único para el archivo
-        $nombreArchivo = time() . '_' . $nombreOriginal;
-
-        // Almacenar la imagen en el disco 'public'
-        $rutaImagen = $fotoPerfil->storeAs('perfil', $nombreArchivo, 'public');
-
-        // Actualizar la ruta de la foto de perfil en el usuario
-        $usuario->foto_perfil = $rutaImagen;
+    $rutaCarpeta = public_path("img/perfil/" . $nombreUsuario);
+    if (!is_dir($rutaCarpeta)) {
+        mkdir($rutaCarpeta, 0755, true);
     }
+
+    $rutaImagen = $rutaCarpeta . '/' . $nombreimagen;
+    $fotoPerfil->move($rutaCarpeta, $nombreimagen);
+    $usuario->foto_perfil = $nombreUsuario . '/' . $nombreimagen;
+}
 
     // Actualizar los demás campos del usuario
     $usuario->nombre = $request->input('nombre');
@@ -110,8 +118,10 @@ class UserController extends Controller
     $usuario->sexo = $request->input('sexo');
     $usuario->email = $request->input('email');
     $usuario->user = $request->input('user');
-    $usuario->password = bcrypt($request->input('password'));
-    $usuario->fecha_nac = $request->input('fecha_nac');
+    if ($request->input('password')) {
+        $usuario->password = bcrypt($request->input('password'));
+    }
+        $usuario->fecha_nac = $request->input('fecha_nac');
     $usuario->rol_id = $request->input('rol_id');
 
     $usuario->save();
