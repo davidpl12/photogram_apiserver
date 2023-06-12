@@ -23,13 +23,13 @@ class PublicacionesTableSeeder extends Seeder
             $fechaPublicacion = $faker->dateTimeBetween('2023-01-01', 'now');
 
             Publicacion::create([
-                'autor' => $faker->numberBetween(1, 10),
+                'autor' => $faker->numberBetween(3, 23),
                 'descripcion' => $faker->text,
                 'lugar_realizacion' => $faker->address,
                 'licencia' => $faker->randomElement(['Creative Commons', 'Public Domain']),
                 'camara' => $faker->randomElement($camaras),
                 'imagen' => $faker->imageUrl,
-                'num_reacciones' => $faker->numberBetween(0, 100),
+                'num_reacciones' => 0,
                 'album' => $faker->numberBetween(1, 3),
                 'fecha_public' => $fechaPublicacion->format('Y-m-d H:i:s'),
             ]);

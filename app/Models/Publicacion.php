@@ -20,8 +20,7 @@ class Publicacion extends Model
         'camara',
         'imagen',
         'num_reacciones',
-        'album',
-        'fecha_public'
+        'album'
     ];
 
     public function autor()
